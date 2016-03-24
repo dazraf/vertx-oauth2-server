@@ -1,6 +1,9 @@
 package io.dazraf.oauth2.authorisation;
 
 import com.github.jknack.handlebars.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalNotification;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -10,9 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static io.dazraf.oauth2.util.HandlebarUtils.handlebarWithJson;
@@ -24,20 +26,26 @@ import static java.util.stream.Collectors.toList;
 
 public class InMemoryAuthorizer {
   private static final Logger LOG = LoggerFactory.getLogger(InMemoryAuthorizer.class);
+
   private final Handlebars handlebars = handlebarWithJson();
   private final Template authTemplate;
+
   private final TokenFountain tokenFountain = new TokenFountain();
-  private final JsonObject clients;
+
+  private final JsonObject registeredClients;
+
   private final JsonObject scopes;
-  private Set<Authorisation> authorisations = new HashSet<>();
-  private HandlebarsTemplateEngine handleBars = HandlebarsTemplateEngine.create();
+
+  private final Set<Authorisation> authorisations = new HashSet<>();
+
+  private final Map<String, String> grants = new HashMap<>();
 
   public static InMemoryAuthorizer create(JsonObject clients, JsonObject scopes) throws IOException {
     return new InMemoryAuthorizer(clients, scopes);
   }
 
   private InMemoryAuthorizer(JsonObject clients, JsonObject scopes) throws IOException {
-    this.clients = clients;
+    this.registeredClients = clients;
     this.scopes = scopes;
     authTemplate = handlebars.compile("oauth2-server-web/templates/authorise");
   }
@@ -50,7 +58,7 @@ public class InMemoryAuthorizer {
       final AuthRequest authRequest = AuthRequest.create(context);
 
       // check that we know this client
-      if (!clients.containsKey(authRequest.getClientID())) {
+      if (!registeredClients.containsKey(authRequest.getClientID())) {
         httpBadRequest(context, "unknown client id: " + authRequest.getClientID());
         return;
       }
@@ -61,9 +69,7 @@ public class InMemoryAuthorizer {
         // we have to request authorisation for these ..
         requestResourceOwnerAuth(context, authRequest, notAuthorisedScopes);
       } else {
-        context.response().end("TODO");
-        // create a token
-        // redirect to the return URL
+        respondWithGrant(context, authRequest);
       }
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e);
@@ -88,7 +94,7 @@ public class InMemoryAuthorizer {
         .collect(toList());
 
       JsonObject result = new JsonObject()
-        .put("client", clients.getJsonObject(request.getClientID()).getString("name"))
+        .put("client", registeredClients.getJsonObject(request.getClientID()).getString("name"))
         .put("scope-descriptions", new JsonArray(scopeDescriptions))
         .put("query", toJsonObject(context.request().params()));
 
@@ -107,20 +113,47 @@ public class InMemoryAuthorizer {
   public void approveAuth(RoutingContext context) {
     // we've just received an approval ... awesome
     try {
-      AuthRequest authReqest = AuthRequest.create(context);
-      authReqest.getRedirectURI();
 
-      retrieveUnauthorisedScopes(authReqest).stream()
-        .forEach(scope -> {
-          Authorisation authorisation = Authorisation.create(authReqest.getClientID(), scope);
-          authorisations.add(authorisation);
-        });
+      String approved = context.request().getParam("approved");
+      AuthRequest authRequest = AuthRequest.create(context);
+      if (approved == null || !approved.equals("Yes")) {
+        respondWithAccessDeniedError(context, authRequest);
+        return;
+      }
 
-      String code = tokenFountain.nextGrantCode();
-      httpRedirectTemporary(context, authReqest.getRedirectURI() + "?code=" + code);
+      addAuthorisedScopes(authRequest);
+
+      respondWithGrant(context, authRequest);
+
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e);
       httpBadRequest(context, "failed to apply authorization. See server logs");
     }
+  }
+
+  private void respondWithGrant(RoutingContext context, AuthRequest authRequest) {
+    String code = tokenFountain.nextGrantCode();
+    grants.put(code, authRequest.getClientID());
+    context.vertx().setTimer(5_000, id -> removeGrant(code));
+    httpRedirectTemporary(context, authRequest.getRedirectURI() + "?code=" + code);
+  }
+
+
+  private void respondWithAccessDeniedError(RoutingContext context, AuthRequest authRequest) {
+    httpRedirectTemporary(context, authRequest.getRedirectURI() + "?error=access_denied");
+  }
+
+  private void addAuthorisedScopes(AuthRequest authRequest) {
+    retrieveUnauthorisedScopes(authRequest).stream()
+      .forEach(scope -> {
+        Authorisation authorisation = Authorisation.create(authRequest.getClientID(), scope);
+        authorisations.add(authorisation);
+      });
+  }
+
+  private void removeGrant(String code) {
+    final String client = grants.get(code);
+    LOG.info("grant {} for client {} expired", code, client != null ? client : "unknown client!" );
+    grants.remove(code);
   }
 }
