@@ -56,7 +56,7 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
 
     setupCoreWebHandlers(authProvider, router);
 
-    setupLoginHandlers(base, authProvider, router);
+    setupLoginHandlers(base, apiPath, authProvider, router);
 
     // auth protected paths
     router.route(apiPath + "/authorize").handler(authHandler);
@@ -107,11 +107,11 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     return config;
   }
 
-  private void setupLoginHandlers(String base, AuthProvider authProvider, Router router) {
+  private void setupLoginHandlers(String base, String apiPath, AuthProvider authProvider, Router router) {
     // bind login
-    router.route(base + "/login").handler(FormLoginHandler.create(authProvider));
+    router.route(apiPath + "/login").handler(FormLoginHandler.create(authProvider));
     // bind logout
-    router.route(base + "/logout").handler(context -> {
+    router.route(apiPath + "/logout").handler(context -> {
       context.clearUser();
       // Redirect back to the index page
       context.response().putHeader("location", base + "/index.html").setStatusCode(302).end();
