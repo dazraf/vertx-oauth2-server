@@ -85,15 +85,37 @@
         </configuration>
       </plugin>
 
-      <!--<plugin>-->
-      <!--<groupId>io.dazraf</groupId>-->
-      <!--<artifactId>vertx-hot-maven-plugin</artifactId>-->
-      <!--<version>2.1.0</version>-->
-      <!--<configuration>-->
-      <!--<verticleReference>io.dazraf.oauth2.OAuth2ServerVerticle</verticleReference>-->
-      <!--<configFile>config/default.json</configFile>-->
-      <!--</configuration>-->
-      <!--</plugin>-->
+      <plugin>
+        <groupId>io.dazraf</groupId>
+        <artifactId>vertx-hot-maven-plugin</artifactId>
+        <version>2.1.0</version>
+        <configuration>
+          <verticleReference>io.dazraf.oauth2.OAuth2ServerVerticle</verticleReference>
+          <configFile>config/default.json</configFile>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <executions>
+          <execution>
+            <id>exec-npm-install</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <executable>npm</executable>
+              <arguments>
+                <argument>install</argument>
+              </arguments>
+              <workingDirectory>${project.basedir}/src/main/resources/oauth2-server-web</workingDirectory>
+            </configuration>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>

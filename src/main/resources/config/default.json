@@ -24,22 +24,22 @@
 
   "users": {
     "john": {
-      "password": ""
+      "password": "john"
     },
     "james": {
-      "password": ""
+      "password": "james"
     },
     "tony": {
-      "password": ""
+      "password": "tony"
     },
     "nick": {
-      "password": ""
+      "password": "nick"
     },
     "robin": {
-      "password": ""
+      "password": "robin"
     },
     "fuzz": {
-      "password": ""
+      "password": "fuzz"
     }
   }
 }
