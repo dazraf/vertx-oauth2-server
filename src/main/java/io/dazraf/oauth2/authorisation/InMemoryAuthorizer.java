@@ -27,7 +27,7 @@ public class InMemoryAuthorizer {
   private static final Logger LOG = LoggerFactory.getLogger(InMemoryAuthorizer.class);
   private final Handlebars handlebars = handlebarWithJson();
   private final Template authTemplate;
-
+  private final TokenFountain tokenFountain = new TokenFountain();
   private final JsonObject clients;
   private final JsonObject scopes;
   private Set<Authorisation> authorisations = new HashSet<>();
@@ -56,11 +56,7 @@ public class InMemoryAuthorizer {
         return;
       }
 
-      final List<String> notAuthorisedScopes = Stream.of(authRequest.getScopes())
-        .map(scope -> new Authorisation(authRequest.getClientID(), scope))
-        .filter(authorisation -> !authorisations.contains(authorisation))
-        .map(Authorisation::getScope)
-        .collect(toList());
+      final List<String> notAuthorisedScopes = retrieveUnauthorisedScopes(authRequest);
 
       if (notAuthorisedScopes.size() > 0) {
         // we have to request authorisation for these ..
@@ -70,9 +66,18 @@ public class InMemoryAuthorizer {
         // create a token
         // redirect to the return URL
       }
-    } catch (Exception e) {
-      LOG.error(e.getMessage());
+    } catch (Throwable e) {
+      LOG.error(e.getMessage(), e);
+      badRequest(context, "failed to authorize. See server logs");
     }
+  }
+
+  private List<String> retrieveUnauthorisedScopes(AuthRequest authRequest) {
+    return Stream.of(authRequest.getScopes())
+          .map(scope -> Authorisation.create(authRequest.getClientID(), scope))
+          .filter(authorisation -> !authorisations.contains(authorisation))
+          .map(Authorisation::getScope)
+          .collect(toList());
   }
 
   private void requestResourceOwnerAuth(RoutingContext context, AuthRequest request, List<String> notAuthorisedScopes) {
@@ -101,11 +106,26 @@ public class InMemoryAuthorizer {
   }
 
   public void approveAuth(RoutingContext context) {
-    LOG.info("Approved!");
-    final String bodyAsString = context.getBodyAsString();
-    String query = context.request().query();
-    MultiMap params = context.request().params();
-    context.response().end("cool");
+    // we've just received an approval ... awesome
+    try {
+      AuthRequest authReqest = AuthRequest.create(context);
+      authReqest.getRedirectURI();
 
+      retrieveUnauthorisedScopes(authReqest).stream()
+        .forEach(scope -> {
+          Authorisation authorisation = Authorisation.create(authReqest.getClientID(), scope);
+          authorisations.add(authorisation);
+        });
+
+      String code = tokenFountain.nextGrantCode();
+      redirect(context, authReqest.getRedirectURI() + "?code=" + code);
+    } catch (Throwable e) {
+      LOG.error(e.getMessage(), e);
+      badRequest(context, "failed to apply authorization. See server logs");
+    }
+  }
+
+  private void redirect(RoutingContext context, String redirectURI) {
+    context.response().setStatusCode(303).putHeader("Location", redirectURI).end();
   }
 }

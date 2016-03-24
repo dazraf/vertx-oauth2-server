@@ -4,7 +4,11 @@ class Authorisation {
   private String clientID;
   private String scope;
 
-  Authorisation(String clientID, String scope) {
+  static Authorisation create(String clientID, String scope) {
+    return new Authorisation(clientID, scope);
+  }
+
+  private Authorisation(String clientID, String scope) {
     this.clientID = clientID;
     this.scope = scope;
   }

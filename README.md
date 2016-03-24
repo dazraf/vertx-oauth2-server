@@ -17,7 +17,7 @@ The configuration object has the following fields and defaults:
 ```json
 { 
   "username": "<username", 
-  "password", "<password>" 
+  "password": "<password>" 
 }
 ```
 
