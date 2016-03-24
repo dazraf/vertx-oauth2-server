@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>OAuth2 Server Dev Intro</title>
-</head>
-<body>
-<h1>API End Points</h1>
-<a href="api/authorize?client_id=acme1&redirect_uri=showToken.html&state=12j&scope=fp&response_type=code">authorize</a>
-<a href="api/token">token</a>
-<a href="api/reset">reset</a>
-<a href="login">login</a>
-<a href="logout">logout</a>
-<h1>Web End Points</h1>
-<a href="index.html">this page</a>
-<a href="login.html">login.html</a>
-</body>
+  <head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/app.css">
+  </head>
+  <body>
+    <h1>API End Points</h1>
+    <ul>
+      <li><a href="api/authorize?client_id=acme1&redirect_uri=/oauth2/showToken.html&state=12j&scope=fp&response_type=code">authorize</a></li>
+      <li><a href="api/token">token</a></li>
+      <li><a href="api/reset">reset</a></li>
+      <li><a href="login">login</a></li>
+      <li><a href="logout">logout</a></li>
+    </ul>
+    <h1>Web End Points</h1>
+    <ul>
+      <li><a href="index.html">this page</a></li>
+      <li><a href="login.html">login.html</a></li>
+    </ul>
+  </body>
 </html>
