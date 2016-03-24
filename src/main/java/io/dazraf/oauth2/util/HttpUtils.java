@@ -2,6 +2,9 @@ package io.dazraf.oauth2.util;
 
 import io.vertx.ext.web.RoutingContext;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class HttpUtils {
   public static String mustGetRequestParam(RoutingContext context, String parameter) throws Exception {
     String value = context.request().getParam(parameter);
@@ -28,7 +31,19 @@ public class HttpUtils {
   }
 
   public static void httpRedirectTemporary(RoutingContext context, String redirectURI) {
-    context.response().setStatusCode(303).putHeader("Location", redirectURI).end();
+    context.response()
+      .setStatusCode(303)
+      .putHeader("Location", redirectURI)
+      .putHeader("Content-Type", "application/x-www-form-urlencoded")
+      .end();
   }
 
+  public static String buildPathParams(Map<String, String> map) {
+    String path = map.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining("&"));
+    if (path != null && !path.isEmpty()) {
+      return "?" + path;
+    } else {
+      return "";
+    }
+  }
 }

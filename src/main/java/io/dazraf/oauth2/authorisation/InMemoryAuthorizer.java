@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import static io.dazraf.oauth2.util.HandlebarUtils.handlebarWithJson;
 import static io.dazraf.oauth2.util.HandlebarUtils.renderJsonWithTemplate;
+import static io.dazraf.oauth2.util.HttpUtils.buildPathParams;
 import static io.dazraf.oauth2.util.HttpUtils.httpBadRequest;
 import static io.dazraf.oauth2.util.HttpUtils.httpRedirectTemporary;
 import static io.dazraf.oauth2.util.MapUtils.toJsonObject;
@@ -131,7 +132,13 @@ public class InMemoryAuthorizer {
     String code = tokenFountain.nextGrantCode();
     grants.put(code, authRequest.getClientID());
     context.vertx().setTimer(5_000, id -> removeGrant(code));
-    httpRedirectTemporary(context, authRequest.getRedirectURI() + "?code=" + code);
+
+    final String state = context.request().getParam("state");
+    Map<String, String> params = new HashMap<>();
+    params.put("code", code);
+    if (state != null)
+    params.put("state", state);
+    httpRedirectTemporary(context, authRequest.getRedirectURI() + buildPathParams(params));
   }
 
 
