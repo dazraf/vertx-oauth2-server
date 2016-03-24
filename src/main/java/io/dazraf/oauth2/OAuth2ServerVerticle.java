@@ -58,15 +58,15 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
 
     setupLoginHandlers(base, authProvider, router);
 
-    // all requests to URI starting '/api/' require login
+    // auth protected paths
     router.route(apiPath + "/authorize").handler(authHandler);
     router.route(apiPath + "/approveauth").handler(authHandler);
     router.route(apiPath + "/reset").handler(authHandler);
 
     // bind api
     router.route(apiPath + "/authorize").handler(authorizer::authorize);
-    router.get(apiPath + "/approveauth").handler(authorizer::approveAuth);
     router.route(apiPath + "/token").handler(authorizer::token);
+    router.get(apiPath + "/approveauth").handler(authorizer::approveAuth);
     router.route(apiPath + "/tokeninfo").handler(authorizer::tokenInfo);
     router.get(apiPath + "/reset").handler(authorizer::reset);
 
