@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+
+  <title>Authorise</title>
+  <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="css/app.css">
+</head>
+<body>
+<div class="container">
+<form class="jumbotron" action="approveauth" method="get">
+  <h1>Authorisation Request</h1>
+  <p class="lead"><strong>Acme Industries Inc.</strong> requires your authorisation for:</p>
+
+  <ul class="list-group">
+    <li class="list-group-item">Access to Faster Payment</li>
+
+  </ul>
+
+  <p class="lead">Is this okay?</p>
+
+
+
+  <input type="hidden" id="client_id" name="client_id" value="acme1">
+
+
+
+  <input type="hidden" id="redirect_uri" name="redirect_uri" value="showToken.html">
+
+
+
+  <input type="hidden" id="state" name="state" value="12j">
+
+
+
+  <input type="hidden" id="scope" name="scope" value="fp">
+
+
+
+  <input type="hidden" id="response_type" name="response_type" value="code">
+
+
+
+  <input class="btn btn-lg btn-primary" type="submit" name="approved" value="No">
+  <input class="btn btn-lg btn-danger" type="submit" name="approved" value="Yes">
+</form>
+</div>  
+</body>
+</html>

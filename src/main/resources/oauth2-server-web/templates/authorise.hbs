@@ -1,35 +1,36 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <meta http-equiv="Pragma" content="no-cache"/>
+  <meta http-equiv="Expires" content="0"/>
+
   <title>Authorise</title>
+  <link rel="stylesheet" type="text/css" href="/oauth2/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/oauth2/node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" type="text/css" href="/oauth2/css/app.css">
 </head>
 <body>
+<div class="container">
+  <form class="jumbotron" action="approveauth" method="get">
+    <h1>Authorisation Request</h1>
+    <p class="lead"><strong>{{client}}</strong> requires your authorisation for:</p>
 
-<form action="approveauth" method="get">
-  <h1>Authorisation Request</h1>
-  {{client}} requires your authorisation for:
+    <ul class="list-group">
+      {{#each scope-descriptions}}<li class="list-group-item">{{this}}</li>{{/each}}
+    </ul>
 
-  <ul>
-    {{#each scope-descriptions}}
-      <li>{{this}}</li>
-    {{/each}}
-  </ul>
+    <p class="lead">Is this okay?</p>
 
-  <div>Is this okay?</div>
+    {{#each query}}{{#each this}}
+        <input type="hidden" id="{{@../key}}" name="{{@../key}}" value="{{this}}">
+    {{/each}}{{/each}}
 
-  {{#each query}}
-    {{#each this}}
-      <input type="hidden" id="{{@../key}}" name="{{@../key}}" value="{{this}}">
-    {{/each}}
-  {{/each}}
-
-  <input type="submit" name="approved" value="No">
-  <input type="submit" name="approved" value="Yes">
-</form>
-
-<script>
-
-</script>
+    <input class="btn btn-lg btn-primary" type="submit" name="approved" value="No">
+    <input class="btn btn-lg btn-danger" type="submit" name="approved" value="Yes">
+  </form>
+</div>
 </body>
 </html>
