@@ -25,3 +25,7 @@ The configuration object has the following fields and defaults:
 
 `$baseURL/api/authorize`
 `$baseURL/api/token`
+
+## JKS
+
+Configured as per [these instructions](https://www.sslshopper.com/article-how-to-create-a-self-signed-certificate-using-java-keytool.html)

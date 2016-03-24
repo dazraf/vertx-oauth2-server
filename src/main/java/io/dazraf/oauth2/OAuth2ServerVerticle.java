@@ -6,7 +6,9 @@ import io.dazraf.oauth2.util.AuthRedirectHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.JksOptions;
 import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.*;
@@ -45,6 +47,7 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     final AuthHandler authHandler = AuthRedirectHandler.create(authProvider, loginURL);
     final StaticHandler staticHandler = StaticHandler.create("oauth2-server-web");
     final InMemoryAuthorizer authorizer = InMemoryAuthorizer.create(
+      base,
       config.getJsonObject("clients"),
       config.getJsonObject("scopes"));
 
@@ -58,13 +61,11 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     // all requests to URI starting '/api/' require login
     router.route(apiPath + "/*").handler(authHandler);
 
-    // implement OAuth2 authorize
+    // bind api
     router.route(apiPath + "/authorize").handler(authorizer::authorize);
-
     router.get(apiPath + "/approveauth").handler(authorizer::approveAuth);
-
-    // bind OAuth2 token swap
     router.get(apiPath + "/token").handler(authorizer::token);
+    router.get(apiPath + "/reset").handler(authorizer::reset);
 
     // and index html routing
     router.get(base).handler(context -> {
@@ -75,7 +76,12 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     router.get(base + "/*").handler(staticHandler);
 
     // start it up
-    vertx.createHttpServer()
+    HttpServerOptions serverOptions = new HttpServerOptions();
+    serverOptions
+      .setSsl(true)
+      .setKeyStoreOptions(new JksOptions().setPath("jks/keystore.jks").setPassword("8a5500n"));
+
+    vertx.createHttpServer(serverOptions)
       .requestHandler(router::accept)
       .listen(port, asyncResult -> {
         if (asyncResult.succeeded()) {

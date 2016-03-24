@@ -1,12 +1,28 @@
 {
   "port": 8080,
+
   "basePath": "/oauth2",
   "apiPath": "/api",
   "loginURL": "/oauth2/login.html",
-  "users": {
-    "fuzz": {
-      "password": ""
+
+
+  "clients": {
+    "acme1": {
+      "name": "Acme Industries Inc.",
+      "secret": "secret"
+    }
+  },
+
+  "scopes": {
+    "fp": {
+      "description": "Access to Faster Payment"
     },
+    "loyalty-read": {
+      "description": "Access to read your Loyalty balance"
+    }
+  },
+
+  "users": {
     "john": {
       "password": ""
     },
@@ -21,19 +37,9 @@
     },
     "robin": {
       "password": ""
-    }
-  },
-  "clients": {
-    "acme1": {
-      "name": "Acme Industries Inc."
-    }
-  },
-  "scopes": {
-    "fp": {
-      "description": "Access to Faster Payment"
     },
-    "loyalty-read": {
-      "description": "Access to read your Loyalty balance"
+    "fuzz": {
+      "password": ""
     }
   }
 }

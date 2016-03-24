@@ -36,20 +36,27 @@ public class InMemoryAuthorizer {
   private final Set<Authorisation> authorisations = new HashSet<>();
 
   private final Map<String, String> grants = new HashMap<>();
+  private final String basePath;
 
-  public static InMemoryAuthorizer create(JsonObject clients, JsonObject scopes) throws IOException {
-    return new InMemoryAuthorizer(clients, scopes);
+  public static InMemoryAuthorizer create(String basePath, JsonObject clients, JsonObject scopes) throws IOException {
+    return new InMemoryAuthorizer(basePath, clients, scopes);
   }
 
-  private InMemoryAuthorizer(JsonObject clients, JsonObject scopes) throws IOException {
+  private InMemoryAuthorizer(String basePath, JsonObject clients, JsonObject scopes) throws IOException {
     this.registeredClients = clients;
     this.scopes = scopes;
+    this.basePath = basePath;
     authTemplate = handlebars.compile("oauth2-server-web/templates/authorise");
   }
 
 
+  public void reset(RoutingContext context) {
+    authorisations.clear();
+    grants.clear();
+    httpRedirectTemporary(context, basePath);
+  }
+
   public void authorize(RoutingContext context) {
-    final HttpServerRequest request = context.request();
 
     try {
       final AuthRequest authRequest = AuthRequest.create(context);
@@ -73,6 +80,32 @@ public class InMemoryAuthorizer {
       httpBadRequest(context, "failed to authorize. See server logs");
     }
   }
+
+  public void approveAuth(RoutingContext context) {
+    // we've just received an approval ... awesome
+    try {
+
+      String approved = context.request().getParam("approved");
+      AuthRequest authRequest = AuthRequest.create(context);
+      if (approved == null || !approved.equals("Yes")) {
+        respondWithAccessDeniedError(context, authRequest);
+        return;
+      }
+
+      addAuthorisedScopes(authRequest);
+
+      respondWithGrant(context, authRequest);
+
+    } catch (Throwable e) {
+      LOG.error(e.getMessage(), e);
+      httpBadRequest(context, "failed to apply authorization. See server logs");
+    }
+  }
+
+  public void token(RoutingContext routingContext) {
+
+  }
+
 
   private List<String> retrieveUnauthorisedScopes(AuthRequest authRequest) {
     return Stream.of(authRequest.getScopes())
@@ -103,30 +136,6 @@ public class InMemoryAuthorizer {
 
   }
 
-  public void token(RoutingContext routingContext) {
-
-  }
-
-  public void approveAuth(RoutingContext context) {
-    // we've just received an approval ... awesome
-    try {
-
-      String approved = context.request().getParam("approved");
-      AuthRequest authRequest = AuthRequest.create(context);
-      if (approved == null || !approved.equals("Yes")) {
-        respondWithAccessDeniedError(context, authRequest);
-        return;
-      }
-
-      addAuthorisedScopes(authRequest);
-
-      respondWithGrant(context, authRequest);
-
-    } catch (Throwable e) {
-      LOG.error(e.getMessage(), e);
-      httpBadRequest(context, "failed to apply authorization. See server logs");
-    }
-  }
 
   private void respondWithGrant(RoutingContext context, AuthRequest authRequest) {
     String code = tokenFountain.nextGrantCode();
