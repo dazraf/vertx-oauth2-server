@@ -1,20 +1,16 @@
 package io.dazraf.oauth2.authorisation;
 
-import com.github.jknack.handlebars.*;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalNotification;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static io.dazraf.oauth2.util.HandlebarUtils.handlebarWithJson;
@@ -156,4 +152,5 @@ public class InMemoryAuthorizer {
     LOG.info("grant {} for client {} expired", code, client != null ? client : "unknown client!" );
     grants.remove(code);
   }
+
 }

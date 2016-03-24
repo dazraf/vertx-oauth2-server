@@ -2,8 +2,8 @@ package io.dazraf.oauth2.authorisation;
 
 import io.vertx.ext.web.RoutingContext;
 
-import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParamAndEquals;
 import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParam;
+import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParamAndEquals;
 
 class AuthRequest {
 

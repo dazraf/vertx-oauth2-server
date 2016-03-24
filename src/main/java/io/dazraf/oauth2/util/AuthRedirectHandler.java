@@ -9,6 +9,10 @@ import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.AuthHandler;
 import io.vertx.ext.web.handler.impl.AuthHandlerImpl;
 
+/**
+ * This is a workaround for a bug noted in vertx auth redirection logic
+ * Notably the fact that path parameters are not preserved
+ */
 public class AuthRedirectHandler extends AuthHandlerImpl {
 
   private static final Logger log = LoggerFactory.getLogger(AuthRedirectHandler.class);
