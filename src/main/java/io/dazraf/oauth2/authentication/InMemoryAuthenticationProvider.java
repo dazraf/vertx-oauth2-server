@@ -1,9 +1,8 @@
-package io.dazraf.oauth2.authprovider;
+package io.dazraf.oauth2.authentication;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.AbstractUser;
 import io.vertx.ext.auth.AuthProvider;
@@ -12,20 +11,20 @@ import io.vertx.ext.auth.User;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InMemoryAuthProvider implements AuthProvider {
+public class InMemoryAuthenticationProvider implements AuthProvider {
   private final Map<String, User> users = new HashMap<>();
 
-  public InMemoryAuthProvider(JsonArray users) {
-    users.forEach(obj -> {
-      JsonObject user = (JsonObject)obj;
-      String username = user.getString("username");
+  public InMemoryAuthenticationProvider(JsonObject users) {
+    users.fieldNames().forEach(username -> {
+      final JsonObject user = users.getJsonObject(username);
+      user.put("username", username);
       this.users.put(username, new InMemoryUser(user));
     });
   }
 
 
-  public static InMemoryAuthProvider create(JsonArray users) {
-    return new InMemoryAuthProvider(users);
+  public static InMemoryAuthenticationProvider create(JsonObject users) {
+    return new InMemoryAuthenticationProvider(users);
   }
 
   @Override

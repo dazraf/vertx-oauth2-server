@@ -10,6 +10,7 @@
 
 
   <dependencies>
+
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -21,10 +22,54 @@
       <artifactId>vertx-core</artifactId>
       <version>3.2.1</version>
     </dependency>
+
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
       <version>3.2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-templ-handlebars</artifactId>
+      <version>3.2.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.jknack</groupId>
+          <artifactId>handlebars</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars</artifactId>
+      <version>4.0.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-templ-mvel</artifactId>
+      <version>3.2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.directory.studio</groupId>
+      <artifactId>org.apache.commons.io</artifactId>
+      <version>2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>handlebars-jackson2</artifactId>
+      <version>4.0.5</version>
     </dependency>
   </dependencies>
 
@@ -39,6 +84,16 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+
+      <!--<plugin>-->
+      <!--<groupId>io.dazraf</groupId>-->
+      <!--<artifactId>vertx-hot-maven-plugin</artifactId>-->
+      <!--<version>2.1.0</version>-->
+      <!--<configuration>-->
+      <!--<verticleReference>io.dazraf.oauth2.OAuth2ServerVerticle</verticleReference>-->
+      <!--<configFile>config/default.json</configFile>-->
+      <!--</configuration>-->
+      <!--</plugin>-->
     </plugins>
   </build>
 </project>

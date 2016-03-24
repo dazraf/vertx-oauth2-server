@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Authorise</title>
+</head>
+<body>
+
+<form action="approveauth" method="get">
+  <h1>Authorisation Request</h1>
+  {{client}} requires your authorisation for:
+
+  <ul>
+    {{#each scope-descriptions}}
+      <li>{{this}}</li>
+    {{/each}}
+  </ul>
+
+  <div>Is this okay?</div>
+
+  {{#each query}}
+    {{#each this}}
+      <input type="hidden" id="{{@../key}}" name="{{@../key}}" value="{{this}}">
+    {{/each}}
+  {{/each}}
+
+  <button type="button">No</button>
+  <input type="submit" value="Yes">
+</form>
+
+<script>
+
+</script>
+</body>
+</html>
