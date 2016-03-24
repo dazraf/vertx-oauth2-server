@@ -2,14 +2,13 @@ package io.dazraf.oauth2.authorisation;
 
 import io.vertx.ext.web.RoutingContext;
 
-import static io.dazraf.oauth2.util.HttpRequestUtils.checkEquals;
-import static io.dazraf.oauth2.util.HttpRequestUtils.checkPresent;
+import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParamAndEquals;
+import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParam;
 
 class AuthRequest {
 
   private final String clientID;
   private final String redirectURI;
-  private final String state;
   private final String[] scopes;
   private final String responseType;
 
@@ -18,13 +17,12 @@ class AuthRequest {
   }
 
   private AuthRequest(RoutingContext context) throws Exception {
-    this.clientID = checkPresent(context, "client_id");
-    this.redirectURI = checkPresent(context, "redirect_uri");
-    this.state = checkPresent(context, "state");
-    this.scopes = checkPresent(context, "scope").split("\\s+");
+    this.clientID = mustGetRequestParam(context, "client_id");
+    this.redirectURI = mustGetRequestParam(context, "redirect_uri");
+    this.scopes = mustGetRequestParam(context, "scope").split("\\s+");
     // we currently on support code auth grant response_type requests
     // this means the application (the merchant etc) has to swap the grant out for the access code ...
-    this.responseType = checkEquals(context, "response_type", "code");
+    this.responseType = mustGetRequestParamAndEquals(context, "response_type", "code");
   }
 
   public String getClientID() {
@@ -35,9 +33,6 @@ class AuthRequest {
     return redirectURI;
   }
 
-  public String getState() {
-    return state;
-  }
 
   public String[] getScopes() {
     return scopes;

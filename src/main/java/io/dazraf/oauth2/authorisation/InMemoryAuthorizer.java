@@ -1,8 +1,6 @@
 package io.dazraf.oauth2.authorisation;
 
 import com.github.jknack.handlebars.*;
-import io.dazraf.oauth2.util.MapUtils;
-import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,7 +17,8 @@ import java.util.stream.Stream;
 
 import static io.dazraf.oauth2.util.HandlebarUtils.handlebarWithJson;
 import static io.dazraf.oauth2.util.HandlebarUtils.renderJsonWithTemplate;
-import static io.dazraf.oauth2.util.HttpRequestUtils.badRequest;
+import static io.dazraf.oauth2.util.HttpUtils.httpBadRequest;
+import static io.dazraf.oauth2.util.HttpUtils.httpRedirectTemporary;
 import static io.dazraf.oauth2.util.MapUtils.toJsonObject;
 import static java.util.stream.Collectors.toList;
 
@@ -52,7 +51,7 @@ public class InMemoryAuthorizer {
 
       // check that we know this client
       if (!clients.containsKey(authRequest.getClientID())) {
-        badRequest(context, "unknown client id: " + authRequest.getClientID());
+        httpBadRequest(context, "unknown client id: " + authRequest.getClientID());
         return;
       }
 
@@ -68,7 +67,7 @@ public class InMemoryAuthorizer {
       }
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e);
-      badRequest(context, "failed to authorize. See server logs");
+      httpBadRequest(context, "failed to authorize. See server logs");
     }
   }
 
@@ -96,7 +95,7 @@ public class InMemoryAuthorizer {
       renderJsonWithTemplate(context, authTemplate, result);
     } catch (Throwable e) {
       LOG.error("failed to render auth request page", e);
-      badRequest(context, "failed to render auth request page");
+      httpBadRequest(context, "failed to render auth request page");
     }
 
   }
@@ -118,14 +117,10 @@ public class InMemoryAuthorizer {
         });
 
       String code = tokenFountain.nextGrantCode();
-      redirect(context, authReqest.getRedirectURI() + "?code=" + code);
+      httpRedirectTemporary(context, authReqest.getRedirectURI() + "?code=" + code);
     } catch (Throwable e) {
       LOG.error(e.getMessage(), e);
-      badRequest(context, "failed to apply authorization. See server logs");
+      httpBadRequest(context, "failed to apply authorization. See server logs");
     }
-  }
-
-  private void redirect(RoutingContext context, String redirectURI) {
-    context.response().setStatusCode(303).putHeader("Location", redirectURI).end();
   }
 }

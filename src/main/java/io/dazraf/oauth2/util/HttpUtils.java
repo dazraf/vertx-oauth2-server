@@ -3,7 +3,7 @@ package io.dazraf.oauth2.util;
 import io.vertx.ext.web.RoutingContext;
 
 public class HttpUtils {
-  public static String checkPresent(RoutingContext context, String parameter) throws Exception {
+  public static String mustGetRequestParam(RoutingContext context, String parameter) throws Exception {
     String value = context.request().getParam(parameter);
     if (value == null) {
       String msg = "the request is missing parameter: " + parameter;
@@ -13,7 +13,7 @@ public class HttpUtils {
     return value;
   }
 
-  public static String checkEquals(RoutingContext context, String parameter, String expectedValue) throws Exception {
+  public static String mustGetRequestParamAndEquals(RoutingContext context, String parameter, String expectedValue) throws Exception {
     String value = context.request().getParam(parameter);
     if (value == null || !value.equals(expectedValue)) {
       String msg =  "the request parameter: " + parameter + " should be " + expectedValue;
