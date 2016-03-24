@@ -67,6 +67,7 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     router.route(apiPath + "/authorize").handler(authorizer::authorize);
     router.get(apiPath + "/approveauth").handler(authorizer::approveAuth);
     router.route(apiPath + "/token").handler(authorizer::token);
+    router.route(apiPath + "/tokeninfo").handler(authorizer::tokenInfo);
     router.get(apiPath + "/reset").handler(authorizer::reset);
 
     // and index html routing

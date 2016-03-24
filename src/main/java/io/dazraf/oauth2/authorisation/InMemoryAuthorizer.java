@@ -234,4 +234,16 @@ public class InMemoryAuthorizer {
     grants.remove(code);
   }
 
+  public void tokenInfo(RoutingContext context) {
+    String access_token = context.request().getParam("access_token");
+    if (access_token == null) {
+      httpBadRequest(context, "expected access_token url parameter");
+    }
+    // simple check
+    if (accessTokens.containsKey(access_token)) {
+      context.response().setStatusCode(200).end("OK");
+    } else {
+      context.response().setStatusCode(400).end("FAIL");
+    }
+  }
 }
