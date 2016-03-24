@@ -1,5 +1,7 @@
 # OAuth2-Server
 
+This is purely for experimental purposes. Not fit for use, yet.
+
 This is an in-memory OAuth2 compliant service implemented as a vert.x verticle.
 To start it, deploy `OAuth2ServerVerticle`.
 
