@@ -5,21 +5,23 @@ import io.vertx.ext.web.RoutingContext;
 import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParam;
 import static io.dazraf.oauth2.util.HttpUtils.mustGetRequestParamAndEquals;
 
-class AuthRequest {
+class GrantRequest {
 
   private final String clientID;
   private final String redirectURI;
   private final String[] scopes;
   private final String responseType;
+  private final String scope;
 
-  public static AuthRequest create(RoutingContext context) throws Exception {
-    return new AuthRequest(context);
+  public static GrantRequest create(RoutingContext context) throws Exception {
+    return new GrantRequest(context);
   }
 
-  private AuthRequest(RoutingContext context) throws Exception {
+  private GrantRequest(RoutingContext context) throws Exception {
     this.clientID = mustGetRequestParam(context, "client_id");
     this.redirectURI = mustGetRequestParam(context, "redirect_uri");
-    this.scopes = mustGetRequestParam(context, "scope").split("\\s+");
+    this.scope = mustGetRequestParam(context, "scope");
+    this.scopes = scope.split("\\s+");
     // we currently on support code auth grant response_type requests
     // this means the application (the merchant etc) has to swap the grant out for the access code ...
     this.responseType = mustGetRequestParamAndEquals(context, "response_type", "code");
@@ -33,6 +35,10 @@ class AuthRequest {
     return redirectURI;
   }
 
+
+  public String getScope() {
+    return scope;
+  }
 
   public String[] getScopes() {
     return scopes;

@@ -59,12 +59,14 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
     setupLoginHandlers(base, authProvider, router);
 
     // all requests to URI starting '/api/' require login
-    router.route(apiPath + "/*").handler(authHandler);
+    router.route(apiPath + "/authorize").handler(authHandler);
+    router.route(apiPath + "/approveauth").handler(authHandler);
+    router.route(apiPath + "/reset").handler(authHandler);
 
     // bind api
     router.route(apiPath + "/authorize").handler(authorizer::authorize);
     router.get(apiPath + "/approveauth").handler(authorizer::approveAuth);
-    router.get(apiPath + "/token").handler(authorizer::token);
+    router.route(apiPath + "/token").handler(authorizer::token);
     router.get(apiPath + "/reset").handler(authorizer::reset);
 
     // and index html routing
@@ -85,7 +87,7 @@ public class OAuth2ServerVerticle extends AbstractVerticle {
       .requestHandler(router::accept)
       .listen(port, asyncResult -> {
         if (asyncResult.succeeded()) {
-          LOG.info("started on http://localhost:{}{}", port, base);
+          LOG.info("started on https://localhost:{}{}", port, base);
           startFuture.complete();
         } else {
           LOG.error("failed to startup", asyncResult.cause());

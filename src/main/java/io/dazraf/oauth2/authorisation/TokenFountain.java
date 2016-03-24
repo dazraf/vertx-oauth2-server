@@ -8,4 +8,7 @@ class TokenFountain {
   public String nextGrantCode() {
     return new BigInteger(32, random).toString(32);
   }
+  public String nextAccessToken() {
+    return new BigInteger(64, random).toString(32);
+  }
 }
